@@ -4,11 +4,14 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun cblas::cblas-c-to-lisp (name)
     (autowrap:default-c-to-lisp
-     (cl:if (and (< 5 (length name))
-                 (string-equal "CBLAS"
-                               (subseq name 0 5)))
-            (subseq name 6)
-            name))))
+     (if (or (< (length name) 5)
+             (not (string-equal "CBLAS"
+                                (subseq name 0 5))))
+         name
+         (cond ((char-equal #\_ (char name 5))
+                (subseq name 6))
+               (t
+                (subseq name 5)))))))
 
 
 (cl:in-package :cblas)
