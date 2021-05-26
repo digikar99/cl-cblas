@@ -5,8 +5,8 @@
   (defun cblas::cblas-c-to-lisp (name)
     (autowrap:default-c-to-lisp
      (cl:if (and (< 5 (length name))
-                 (string= "CBLAS"
-                          (subseq name 0 5)))
+                 (string-equal "CBLAS"
+                               (subseq name 0 5)))
             (subseq name 6)
             name))))
 
@@ -14,7 +14,7 @@
 (cl:in-package :cblas)
 ;; FIXME Avoid hardcoding the path
 (autowrap:c-include #+x86-64 #P"/usr/include/x86_64-linux-gnu/cblas.h"
-		    #+arm64 #P"/usr/include/aarch64-linux-gnu/cblas.h"
+		            #+arm64 #P"/usr/include/aarch64-linux-gnu/cblas.h"
                     :spec-path
                     (cl:merge-pathnames #P"specs/"
                                         (asdf:component-pathname (asdf:find-system "cblas")))
