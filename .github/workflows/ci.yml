@@ -1,0 +1,45 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: ${{ matrix.lisp }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        lisp: [sbcl, ccl]
+        os: [ubuntu-latest]
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Install libopenblas
+      run: sudo apt install libopenblas-base
+
+    - name: Update $PATH
+      run: |
+        echo $PATH
+        echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
+    - name: Check $PATH
+      run: echo $PATH
+
+    - name: Download implementation
+      env:
+        LISP: ${{ matrix.lisp }}
+      run: |
+          pwd
+          ls -l
+          bash <(curl -s https://raw.githubusercontent.com/digikar99/lisp-travis-lite/master/run.sh)
+
+    - name: Move system to quicklisp/local-projects
+      run: |
+        mkdir -p ~/quicklisp/local-projects/cl-cblas
+        mv * ~/quicklisp/local-projects/cl-cblas
+
+    - name: Compile System
+      run: cl --eval '(ql:quickload "cblas")'
+
+    - name: Load System
+      run: cl --eval '(asdf:compile-system "cblas" :force t)' --eval '(asdf:load-system "cblas")'
